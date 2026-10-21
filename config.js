@@ -24,14 +24,14 @@ const CONFIG = {
       name: "STEAM MAIN",
       badge: "waify_love",
       url: "https://steamcommunity.com/id/waify_love/",
-      effect: "snow"
+      effect: "snow" // Снег при наведении
     },
     {
       type: "steam",
       name: "STEAM 2ND",
       badge: "Chernish_",
       url: "https://steamcommunity.com/id/Chernish_/",
-      effect: "snow"
+      effect: "snow" // Снег при наведении
     }
   ],
 
@@ -44,7 +44,7 @@ const CONFIG = {
       name: "TELEGRAM",
       badge: "@EtoChernish",
       url: "https://t.me/EtoChernish",
-      effect: "rain"
+      effect: "hearts" // Дождь из сердечек при наведении!
     },
     {
       type: "discord",
@@ -52,28 +52,28 @@ const CONFIG = {
       badge: "chernish",
       isDiscordCopy: true,
       url: "#",
-      effect: "rain"
+      effect: "rain" // Дождь при наведении
     },
     {
       type: "steam",
       name: "STEAM MAIN",
       badge: "waify_love",
       url: "https://steamcommunity.com/id/waify_love/",
-      effect: "snow"
+      effect: "snow" // Снег при наведении
     },
     {
       type: "steam",
       name: "STEAM 2ND",
       badge: "Chernish_",
       url: "https://steamcommunity.com/id/Chernish_/",
-      effect: "snow"
+      effect: "snow" // Снег при наведении
     },
     {
       type: "github",
       name: "GITHUB",
       badge: "ChernishTV",
       url: "https://github.com/ChernishTV",
-      effect: "leaves"
+      effect: "rain" // Дождь при наведении
     }
   ]
 };
