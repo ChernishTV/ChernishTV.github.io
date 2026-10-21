@@ -103,6 +103,8 @@ canvas#stars {
   cursor: pointer;
   transition: transform 0.15s var(--ease-out);
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 #user img:hover {
@@ -265,7 +267,10 @@ main {
   transition: transform 0.3s var(--ease-out);
 }
 
-.card .icon {
+.card .icon,
+.card .icon-svg {
+  width: clamp(32px, 4.2vw, 40px);
+  height: clamp(32px, 4.2vw, 40px);
   font-size: clamp(32px, 4.2vw, 40px);
   color: var(--surface-3);
   transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
@@ -310,7 +315,8 @@ main {
     0 0 20px rgba(var(--active-rgb, 255, 255, 255), 0.3);
 }
 
-.card:hover .icon {
+.card:hover .icon,
+.card:hover .icon-svg {
   color: var(--active-color, #ffffff);
   transform: scale(1.12);
 }
