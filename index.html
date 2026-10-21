@@ -11,43 +11,47 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-  <link rel="stylesheet" href="style.css?v=2.0" />
+  <link rel="stylesheet" href="style.css?v=3.0" />
 </head>
 
 <body>
-  <!-- Starfield Canvas -->
+  <!-- Starfield & Morphing Canvas -->
   <canvas id="stars"></canvas>
+
+  <!-- Fullscreen TV Static & Glitch Overlay -->
+  <div id="glitch-overlay">
+    <div class="noise"></div>
+    <div class="scanlines"></div>
+  </div>
 
   <div id="container">
     <!-- Profile Header -->
     <div id="user">
       <div class="avatar-wrapper">
-        <img id="avatar-img" src="avatar.png?v=2.0" alt="Chernish Avatar" />
+        <img id="avatar-img" src="avatar.png?v=3.0" alt="Chernish Avatar" title="Кликни 20 раз быстро..." />
       </div>
 
       <p class="nickname channel-split-wrapper">@Chernish</p>
 
       <div class="status-badge" id="bio-badge">
         <span class="status-dot"></span>
-        <span id="bio-text">yor friend ❤</span>
+        <span id="bio-text">steam profile</span>
       </div>
     </div>
 
-    <!-- Cards Grid (Генерируется динамически из config.js) -->
+    <!-- Cards Grid -->
     <main id="cards-grid"></main>
   </div>
 
-  <!-- Всплывающее уведомление (Toast) при копировании Discord -->
+  <!-- Всплывающее уведомление (Toast) -->
   <div id="toast">
-    <i class="fa-solid fa-circle-check"></i>
-    <span id="toast-text">Ник скопирован!</span>
+    <i class="fa-solid fa-bolt"></i>
+    <span id="toast-text"></span>
   </div>
 
-  <!-- Файл с твоими ссылками -->
-  <script src="config.js?v=2.0"></script>
-
-  <!-- Скрипты фона и эффектов -->
-  <script src="background.js?v=2.0"></script>
-  <script src="pixels.js?v=2.0"></script>
+  <!-- Конфигурация и скрипты -->
+  <script src="config.js?v=3.0"></script>
+  <script src="background.js?v=3.0"></script>
+  <script src="pixels.js?v=3.0"></script>
 </body>
 </html>
