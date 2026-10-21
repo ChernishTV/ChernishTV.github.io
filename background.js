@@ -231,13 +231,6 @@ window.addEventListener('touchend', () => {
   pointerY = null;
 });
 
-// Toggle pause on avatar click
-const avatarEl = document.querySelector('#avatar-img');
-if (avatarEl) {
-  avatarEl.addEventListener('click', () => {
-    isPointerEnabled = !isPointerEnabled;
-  });
-}
 
 // Global API to change particle mode seamlessly
 window.setParticleTheme = function(mode, color) {
