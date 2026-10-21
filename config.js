@@ -13,38 +13,47 @@ const CONFIG = {
   discordUsername: "chernish",
 
   // Карточки соцсетей
+  // Эффекты фона при наведении (effect):
+  // "rain"   - неоновый дождь
+  // "leaves" - падающие покачивающиеся листочки
+  // "snow"   - снежинки / мороз
+  // "stars"  - звёзды
   links: [
     {
       type: "telegram",
       name: "TELEGRAM",
       badge: "@EtoChernish",
-      url: "https://t.me/EtoChernish"
+      url: "https://t.me/EtoChernish",
+      effect: "rain"
     },
     {
       type: "discord",
       name: "DISCORD",
       badge: "chernish",
-      // При клике автоматически копирует ник в буфер обмена
       isDiscordCopy: true,
-      url: "#"
+      url: "#",
+      effect: "rain"
     },
     {
       type: "steam",
       name: "STEAM MAIN",
       badge: "waify_love",
-      url: "https://steamcommunity.com/id/waify_love/"
+      url: "https://steamcommunity.com/id/waify_love/",
+      effect: "snow"
     },
     {
       type: "steam",
       name: "STEAM 2ND",
       badge: "Chernish_",
-      url: "https://steamcommunity.com/id/Chernish_/"
+      url: "https://steamcommunity.com/id/Chernish_/",
+      effect: "snow"
     },
     {
       type: "github",
       name: "GITHUB",
       badge: "ChernishTV",
-      url: "https://github.com/ChernishTV"
+      url: "https://github.com/ChernishTV",
+      effect: "leaves"
     }
   ]
 };
