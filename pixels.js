@@ -247,7 +247,7 @@ function showToast(message) {
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
     toast.classList.remove("show");
-  }, 2500);
+  }, 2800);
 }
 
 /* RGB Channel Split (Glitch text) */
@@ -271,30 +271,14 @@ function channelSplit(elem) {
   }
 }
 
-/* Render cards and profile from CONFIG */
-function renderApp() {
-  if (typeof CONFIG === "undefined") return;
-
-  // Nickname
-  const nicknameEl = document.querySelector(".channel-split-wrapper");
-  if (nicknameEl && CONFIG.nickname) {
-    nicknameEl.textContent = CONFIG.nickname;
-  }
-  channelSplit(nicknameEl);
-
-  // Bio
-  const bioText = document.getElementById("bio-text");
-  if (bioText && CONFIG.bio) {
-    bioText.textContent = CONFIG.bio;
-  }
-
-  // Cards
+/* Render cards helper */
+function renderCards(linksArray) {
   const gridEl = document.getElementById("cards-grid");
-  if (!gridEl || !Array.isArray(CONFIG.links)) return;
+  if (!gridEl || !Array.isArray(linksArray)) return;
 
   gridEl.innerHTML = "";
 
-  CONFIG.links.forEach((item) => {
+  linksArray.forEach((item) => {
     const preset = SERVICE_PRESETS[item.type?.toLowerCase()] || {
       icon: item.icon || "fa-solid fa-link",
       color: item.color || "#ffffff",
@@ -350,6 +334,104 @@ function renderApp() {
 
     gridEl.appendChild(card);
   });
+}
+
+/* Easter Egg: 20 rapid clicks on avatar to toggle full socials with heavy glitch */
+let avatarClicks = 0;
+let lastClickTime = 0;
+let isUnlocked = false;
+let isGlitching = false;
+
+function setupEasterEgg() {
+  const avatarImg = document.getElementById("avatar-img");
+  const overlay = document.getElementById("glitch-overlay");
+  const container = document.getElementById("container");
+  if (!avatarImg) return;
+
+  avatarImg.addEventListener("click", () => {
+    if (isGlitching) return;
+
+    const now = Date.now();
+    // Reset counter if pause between clicks is > 1200ms
+    if (now - lastClickTime > 1200) {
+      avatarClicks = 0;
+      avatarImg.classList.remove("avatar-charging");
+    }
+
+    lastClickTime = now;
+    avatarClicks++;
+
+    // Visual feedback when approaching 20 clicks
+    if (avatarClicks >= 12 && avatarClicks < 20) {
+      avatarImg.classList.add("avatar-charging");
+    }
+
+    if (avatarClicks >= 20) {
+      avatarClicks = 0;
+      avatarImg.classList.remove("avatar-charging");
+      triggerGlitchSequence();
+    }
+  });
+}
+
+function triggerGlitchSequence() {
+  isGlitching = true;
+  const overlay = document.getElementById("glitch-overlay");
+  const container = document.getElementById("container");
+
+  // Glitch burst on screen & container
+  if (overlay) overlay.classList.add("active");
+  if (container) container.classList.add("glitching");
+
+  // In the middle of the glitch (550ms), swap the cards & status
+  setTimeout(() => {
+    isUnlocked = !isUnlocked;
+    renderCards(isUnlocked ? CONFIG.secretLinks : CONFIG.publicLinks);
+
+    const bioText = document.getElementById("bio-text");
+    if (bioText) {
+      bioText.textContent = isUnlocked
+        ? (CONFIG.bioSecret || "yor friend ❤")
+        : (CONFIG.bioPublic || "steam profile");
+    }
+  }, 550);
+
+  // Finish glitch after 1.1s
+  setTimeout(() => {
+    if (overlay) overlay.classList.remove("active");
+    if (container) container.classList.remove("glitching");
+    isGlitching = false;
+
+    if (isUnlocked) {
+      showToast("⚡ Доступ открыт: личные контакты");
+    } else {
+      showToast("🔒 Режим: только Steam");
+    }
+  }, 1100);
+}
+
+/* Initialize App */
+function renderApp() {
+  if (typeof CONFIG === "undefined") return;
+
+  // Nickname
+  const nicknameEl = document.querySelector(".channel-split-wrapper");
+  if (nicknameEl && CONFIG.nickname) {
+    nicknameEl.textContent = CONFIG.nickname;
+  }
+  channelSplit(nicknameEl);
+
+  // Initial Bio
+  const bioText = document.getElementById("bio-text");
+  if (bioText) {
+    bioText.textContent = CONFIG.bioPublic || "steam profile";
+  }
+
+  // Initial Cards: Public Mode (Steam accounts only)
+  renderCards(CONFIG.publicLinks || []);
+
+  // Setup Easter Egg
+  setupEasterEgg();
 }
 
 document.addEventListener("DOMContentLoaded", renderApp);
