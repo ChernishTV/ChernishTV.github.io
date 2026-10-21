@@ -192,11 +192,12 @@ canvas#stars {
   50% { opacity: 0.4; transform: scale(0.85); }
 }
 
-/* Cards Grid */
+/* Cards Layout (Centered Flex) */
 main {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space);
 }
 
@@ -207,6 +208,9 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex: 0 1 calc((100% - var(--space) * 2) / 3);
+  min-width: 135px;
+  max-width: 160px;
   aspect-ratio: 1 / 1;
   background: var(--surface-card);
   backdrop-filter: blur(14px);
@@ -239,7 +243,7 @@ main {
 }
 
 .card .icon {
-  font-size: clamp(34px, 4.5vw, 42px);
+  font-size: clamp(32px, 4.2vw, 40px);
   color: var(--surface-3);
   transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
 }
@@ -256,7 +260,7 @@ main {
 
 .card .title {
   color: #e2e8f0;
-  font-size: clamp(10px, 1.7vw, 12px);
+  font-size: clamp(10px, 1.6vw, 12px);
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -335,9 +339,10 @@ main {
   #container {
     max-width: 100%;
   }
-  main {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .card {
+    flex: 0 1 calc((100% - 12px) / 2);
+    min-width: 130px;
+    max-width: 160px;
   }
   #user img {
     width: 110px;
