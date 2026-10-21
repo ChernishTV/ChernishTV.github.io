@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chernish</title>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Starfield Canvas -->
+  <canvas id="stars"></canvas>
+
+  <div id="container">
+    <!-- Profile Header -->
+    <div id="user">
+      <div class="avatar-wrapper">
+        <img id="avatar-img" src="avatar.png" alt="Chernish Avatar" />
+      </div>
+
+      <p class="nickname channel-split-wrapper">@Chernish</p>
+
+      <div class="status-badge" id="bio-badge">
+        <span class="status-dot"></span>
+        <span id="bio-text">yor friend ❤</span>
+      </div>
+    </div>
+
+    <!-- Cards Grid (Генерируется динамически из config.js) -->
+    <main id="cards-grid"></main>
+  </div>
+
+  <!-- Всплывающее уведомление (Toast) при копировании Discord -->
+  <div id="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toast-text">Ник скопирован!</span>
+  </div>
+
+  <!-- Файл с твоими ссылками -->
+  <script src="config.js"></script>
+
+  <!-- Скрипты фона и эффектов -->
+  <script src="background.js"></script>
+  <script src="pixels.js"></script>
+</body>
+</html>
