@@ -307,6 +307,19 @@ function renderApp() {
     card.style.setProperty("--active-color", preset.color);
     card.style.setProperty("--active-rgb", preset.rgb);
 
+    // Interactive background particle morphing
+    card.addEventListener("mouseenter", () => {
+      if (typeof window.setParticleTheme === "function") {
+        window.setParticleTheme(item.effect || "stars", preset.color);
+      }
+    });
+
+    card.addEventListener("mouseleave", () => {
+      if (typeof window.setParticleTheme === "function") {
+        window.setParticleTheme("stars", null);
+      }
+    });
+
     if (item.isDiscordCopy) {
       card.href = "javascript:void(0)";
       card.addEventListener("click", (e) => {
