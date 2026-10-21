@@ -24,7 +24,7 @@ const CONFIG = {
       type: "discord",
       name: "DISCORD",
       badge: "chernish",
-      // При клике автоматически копирует ник в буфер обмена!
+      // При клике автоматически копирует ник в буфер обмена
       isDiscordCopy: true,
       url: "#"
     },
@@ -45,12 +45,6 @@ const CONFIG = {
       name: "GITHUB",
       badge: "ChernishTV",
       url: "https://github.com/ChernishTV"
-    },
-    {
-      type: "youtube",
-      name: "YOUTUBE",
-      badge: "ChernishTV",
-      url: "https://www.youtube.com/@ChernishTV"
     }
   ]
 };
