@@ -340,44 +340,47 @@ function renderCards(linksArray) {
   });
 }
 
-/* Easter Egg: Rapid clicks on avatar to toggle full socials with heavy glitch */
+/* Easter Egg: Clicks on avatar to toggle full socials with heavy glitch */
 let avatarClicks = 0;
-let lastClickTime = 0;
+let clickResetTimer = null;
 let isUnlocked = false;
 let isGlitching = false;
-const TARGET_CLICKS = 12; // 12 быстрых кликов (удобнее и надёжнее, чем 20)
+const TARGET_CLICKS = 8; // 8 кликов — моментально и надёжно срабатывает!
 
 function setupEasterEgg() {
   const avatarImg = document.getElementById("avatar-img");
   if (!avatarImg) return;
 
-  // Listen to both click and pointerdown for immediate touch response on mobile
-  const handleClick = (e) => {
+  const onAvatarClick = (e) => {
+    e.preventDefault();
     if (isGlitching) return;
 
-    const now = Date.now();
-    // Reset counter if idle > 1400ms
-    if (now - lastClickTime > 1400) {
-      avatarClicks = 0;
-      avatarImg.classList.remove("avatar-charging");
-    }
-
-    lastClickTime = now;
     avatarClicks++;
 
-    // Visual feedback when approaching target clicks
-    if (avatarClicks >= 6 && avatarClicks < TARGET_CLICKS) {
+    // Reset after 3 seconds of inactivity
+    clearTimeout(clickResetTimer);
+    clickResetTimer = setTimeout(() => {
+      avatarClicks = 0;
+      avatarImg.classList.remove("avatar-charging");
+    }, 3000);
+
+    // Start dancing/shaking at 4 clicks
+    if (avatarClicks >= 4 && avatarClicks < TARGET_CLICKS) {
       avatarImg.classList.add("avatar-charging");
     }
 
     if (avatarClicks >= TARGET_CLICKS) {
+      clearTimeout(clickResetTimer);
       avatarClicks = 0;
       avatarImg.classList.remove("avatar-charging");
       triggerGlitchSequence();
     }
   };
 
-  avatarImg.addEventListener("pointerdown", handleClick);
+  // Listen to click
+  avatarImg.addEventListener("click", onAvatarClick);
+  // Also prevent dragging
+  avatarImg.addEventListener("dragstart", (e) => e.preventDefault());
 }
 
 function triggerGlitchSequence() {
@@ -385,11 +388,14 @@ function triggerGlitchSequence() {
   const overlay = document.getElementById("glitch-overlay");
   const container = document.getElementById("container");
 
-  // Glitch burst on screen & container
-  if (overlay) overlay.classList.add("active");
+  // Activate fullscreen glitch
+  if (overlay) {
+    overlay.style.display = "block";
+    overlay.classList.add("active");
+  }
   if (container) container.classList.add("glitching");
 
-  // In the middle of the glitch (550ms), swap the cards & status
+  // Halfway through glitch (500ms), swap cards
   setTimeout(() => {
     isUnlocked = !isUnlocked;
     renderCards(isUnlocked ? CONFIG.secretLinks : CONFIG.publicLinks);
@@ -400,16 +406,19 @@ function triggerGlitchSequence() {
         ? (CONFIG.bioSecret || "yor friend ❤")
         : (CONFIG.bioPublic || "steam profile");
     }
-  }, 550);
+  }, 500);
 
-  // Finish glitch after 1.1s
+  // End glitch after 1.1s
   setTimeout(() => {
-    if (overlay) overlay.classList.remove("active");
+    if (overlay) {
+      overlay.classList.remove("active");
+      overlay.style.display = "none";
+    }
     if (container) container.classList.remove("glitching");
     isGlitching = false;
 
     if (isUnlocked) {
-      showToast("⚡ Доступ открыт: личные контакты");
+      showToast("⚡ Доступ открыт: Telegram, Discord, GitHub!");
     } else {
       showToast("🔒 Режим: только Steam");
     }
