@@ -51,27 +51,27 @@ class Particle {
     this.heartColor = HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)];
   }
 
-  update() {
+  update(dt = 1) {
     if (currentMode === 'stars') {
-      // Gentle 3D celestial warp (2.5x slower)
-      this.x += velocity.x * this.z;
-      this.y += velocity.y * this.z;
+      // Gentle 3D celestial warp (2.5x slower, frame-rate independent)
+      this.x += velocity.x * this.z * dt;
+      this.y += velocity.y * this.z * dt;
 
-      this.x += (this.x - width / 2) * velocity.z * this.z;
-      this.y += (this.y - height / 2) * velocity.z * this.z;
-      this.z += velocity.z * 0.5;
+      this.x += (this.x - width / 2) * velocity.z * this.z * dt;
+      this.y += (this.y - height / 2) * velocity.z * this.z * dt;
+      this.z += velocity.z * 0.5 * dt;
 
-      if (this.x < -40 || this.x > width + 40 || this.y < -40 || this.y > height + 40) {
+      if (this.z > 2.5 || this.x < -40 || this.x > width + 40 || this.y < -40 || this.y > height + 40) {
         this.reset();
         this.y = Math.random() * height;
       }
     } 
     else if (currentMode === 'hearts') {
       // Fluttering rain of cute neon hearts (Телеграм)
-      this.wobble += this.wobbleSpeed;
-      this.angle += this.angleSpeed;
-      this.x += Math.sin(this.wobble) * this.wobbleRadius + (velocity.x * 0.15);
-      this.y += (2.2 + this.baseSpeed * 1.6) * scale;
+      this.wobble += this.wobbleSpeed * dt;
+      this.angle += this.angleSpeed * dt;
+      this.x += (Math.sin(this.wobble) * this.wobbleRadius + (velocity.x * 0.15)) * dt;
+      this.y += (2.2 + this.baseSpeed * 1.6) * scale * dt;
 
       if (this.y > height + 35 || this.x < -40 || this.x > width + 40) {
         this.reset();
@@ -79,9 +79,9 @@ class Particle {
     }
     else if (currentMode === 'snow') {
       // Soft drifting snowflakes (Стим)
-      this.wobble += this.wobbleSpeed * 0.8;
-      this.x += Math.cos(this.wobble) * 1.2 + (velocity.x * 0.15);
-      this.y += (1.4 + this.baseSpeed * 0.9) * scale;
+      this.wobble += this.wobbleSpeed * 0.8 * dt;
+      this.x += (Math.cos(this.wobble) * 1.2 + (velocity.x * 0.15)) * dt;
+      this.y += (1.4 + this.baseSpeed * 0.9) * scale * dt;
 
       if (this.y > height + 25 || this.x < -30 || this.x > width + 30) {
         this.reset();
@@ -89,8 +89,8 @@ class Particle {
     }
     else if (currentMode === 'rain') {
       // Fast vertical rain streaks (Гитхаб / Дискорд)
-      this.y += (9 + this.baseSpeed * 7) * scale;
-      this.x += velocity.x * 0.2;
+      this.y += (9 + this.baseSpeed * 7) * scale * dt;
+      this.x += velocity.x * 0.2 * dt;
 
       if (this.y > height + 35) {
         this.y = -20;
@@ -174,6 +174,8 @@ function initParticles() {
   }
 }
 
+let lastTime = performance.now();
+
 function resize() {
   scale = window.devicePixelRatio || 1;
   width = window.innerWidth * scale;
@@ -184,20 +186,27 @@ function resize() {
 
   if (particles.length === 0) {
     initParticles();
+  } else {
+    particles.forEach((p) => p.reset(true));
   }
 }
 
-function step() {
+function step(now) {
+  const currentTime = typeof now === 'number' ? now : performance.now();
+  const dt = Math.min(Math.max(0, currentTime - lastTime) / 16.6667, 3);
+  lastTime = currentTime;
+
   ctx.clearRect(0, 0, width, height);
 
-  // Smooth mouse velocity damping (more than 2.5x smoother and slower)
-  velocity.tx *= 0.94;
-  velocity.ty *= 0.94;
-  velocity.x += (velocity.tx - velocity.x) * 0.32;
-  velocity.y += (velocity.ty - velocity.y) * 0.32;
+  // Smooth mouse velocity damping (more than 2.5x smoother and slower, frame-rate independent)
+  velocity.tx *= Math.pow(0.94, dt);
+  velocity.ty *= Math.pow(0.94, dt);
+  const lerp = 1 - Math.pow(1 - 0.32, dt);
+  velocity.x += (velocity.tx - velocity.x) * lerp;
+  velocity.y += (velocity.ty - velocity.y) * lerp;
 
   for (let i = 0; i < particles.length; i++) {
-    particles[i].update();
+    particles[i].update(dt);
     particles[i].draw();
   }
 
@@ -238,6 +247,12 @@ window.addEventListener('touchend', () => {
   pointerY = null;
 });
 
+document.addEventListener('touchstart', (e) => {
+  if (!e.target.closest('.card') && typeof window.setParticleTheme === 'function') {
+    window.setParticleTheme('stars', null);
+  }
+}, { passive: true });
+
 // Global API to change particle mode seamlessly
 window.setParticleTheme = function(mode, color) {
   currentMode = mode || 'stars';
@@ -245,4 +260,4 @@ window.setParticleTheme = function(mode, color) {
 };
 
 resize();
-step();
+requestAnimationFrame(step);
