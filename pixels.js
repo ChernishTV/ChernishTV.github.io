@@ -24,32 +24,32 @@ class Pixel {
     this.isIdle = true;
   }
 
-  appear() {
+  appear(dt = 1) {
     this.isIdle = false;
 
     if (this.counter < this.delay) {
-      this.counter += 5;
+      this.counter += 5 * dt;
       return;
     }
 
     if (this.progress < 1) {
-      this.progress = Math.min(1, this.progress + this.growSpeed);
+      this.progress = Math.min(1, this.progress + this.growSpeed * dt);
     }
 
-    this.shimmerPhase += this.shimmerSpeed;
+    this.shimmerPhase += this.shimmerSpeed * dt;
     // Случайная мягкая смена оттенка из палитры карточки
-    if (Math.random() < 0.012) {
+    if (Math.random() < 0.012 * dt) {
       this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
     }
 
     this.draw();
   }
 
-  disappear() {
-    this.shimmerPhase += this.shimmerSpeed;
+  disappear(dt = 1) {
+    this.shimmerPhase += this.shimmerSpeed * dt;
 
     if (this.progress > 0) {
-      this.progress = Math.max(0, this.progress - this.growSpeed * 1.15);
+      this.progress = Math.max(0, this.progress - this.growSpeed * 1.15 * dt);
       this.draw();
     } else {
       this.counter = 0;
@@ -179,14 +179,14 @@ class PixelCanvas extends HTMLElement {
 
   handleAnimation(name) {
     this.animMode = name;
+    this._lastTime = performance.now();
     cancelAnimationFrame(this.animation);
-    this.animate();
+    this.animation = requestAnimationFrame((now) => this.animate(now));
   }
 
   init() {
-    const rect = this.getBoundingClientRect();
-    const width = Math.ceil(rect.width);
-    const height = Math.ceil(rect.height);
+    const width = Math.ceil(this.offsetWidth || this.clientWidth);
+    const height = Math.ceil(this.offsetHeight || this.clientHeight);
 
     if (width === 0 || height === 0) return;
 
@@ -228,13 +228,17 @@ class PixelCanvas extends HTMLElement {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  animate() {
-    this.animation = requestAnimationFrame(() => this.animate());
+  animate(now) {
+    const currentTime = typeof now === "number" ? now : performance.now();
+    const dt = Math.min(Math.max(0, currentTime - (this._lastTime || currentTime)) / 16.6667, 3);
+    this._lastTime = currentTime;
+
+    this.animation = requestAnimationFrame((t) => this.animate(t));
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const mode = this.animMode || "disappear";
     for (let i = 0; i < this.pixels.length; i++) {
-      this.pixels[i][mode]();
+      this.pixels[i][mode](dt);
     }
 
     if (mode === "disappear" && this.pixels.every((p) => p.isIdle)) {
@@ -315,6 +319,30 @@ function channelSplit(elem) {
   });
 }
 
+/* Безопасное копирование в буфер (работает и по HTTPS, и локально по file://) */
+function copyTextSafe(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (ok) resolve();
+      else reject(new Error("Copy failed"));
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 /* Отрисовка кнопок соцсетей */
 function renderCards(linksArray, hiddenForHeartReveal = false) {
   const gridEl = document.getElementById("cards-grid");
@@ -359,8 +387,7 @@ function renderCards(linksArray, hiddenForHeartReveal = false) {
       card.addEventListener("click", (e) => {
         e.preventDefault();
         const username = CONFIG.discordUsername || "chernish";
-        navigator.clipboard
-          .writeText(username)
+        copyTextSafe(username)
           .then(() => showToast(`Дискорд скопирован: ${username}`))
           .catch(() => showToast(`Дискорд: ${username}`));
       });
@@ -512,6 +539,7 @@ function triggerHeartsSequence() {
   let cardsSwapped = false;
   let cardHeartsSpawned = false;
   const startTime = performance.now();
+  let lastFrameTime = startTime;
 
   function spawnMiniBurst(cx, cy) {
     const count = 24;
@@ -538,6 +566,10 @@ function triggerHeartsSequence() {
   }
 
   function animateTransition(now) {
+    const deltaMs = Math.min(Math.max(0, now - lastFrameTime), 50);
+    const dt = deltaMs / 16.6667;
+    lastFrameTime = now;
+
     const elapsed = now - startTime;
     tCtx.clearRect(0, 0, w, h);
 
@@ -561,10 +593,10 @@ function triggerHeartsSequence() {
     let curtainStillOnScreen = false;
     for (let i = 0; i < curtainHearts.length; i++) {
       const p = curtainHearts[i];
-      p.y += p.speedY;
-      p.wobble += p.wobbleSpeed;
-      p.x += Math.sin(p.wobble) * 1.8;
-      p.angle += p.angleSpeed;
+      p.y += p.speedY * dt;
+      p.wobble += p.wobbleSpeed * dt;
+      p.x += Math.sin(p.wobble) * 1.8 * dt;
+      p.angle += p.angleSpeed * dt;
 
       if (p.y < h + 90) {
         curtainStillOnScreen = true;
@@ -579,12 +611,14 @@ function triggerHeartsSequence() {
 
       cardEls.forEach((cardEl, idx) => {
         const rect = cardEl.getBoundingClientRect();
+        const layoutW = cardEl.offsetWidth || rect.width;
+        const layoutH = cardEl.offsetHeight || rect.height;
         cardBigHearts.push({
           cardEl,
           cx: rect.left + rect.width / 2,
           cy: rect.top + rect.height / 2,
           scale: 0,
-          maxSize: Math.min(rect.width, rect.height) * 0.55,
+          maxSize: Math.min(layoutW, layoutH) * 0.55,
           delay: idx * 130, // Поочерёдное красивое лопание для каждой кнопки
           elapsedLocal: 0,
           popped: false,
@@ -601,7 +635,7 @@ function triggerHeartsSequence() {
       if (bh.popped) continue;
 
       allCardHeartsPopped = false;
-      bh.elapsedLocal += 16.6;
+      bh.elapsedLocal += deltaMs;
 
       if (bh.elapsedLocal < bh.delay) continue;
 
@@ -634,6 +668,11 @@ function triggerHeartsSequence() {
         spawnMiniBurst(bh.cx, bh.cy);
         bh.cardEl.classList.remove("card-hidden-for-heart");
         bh.cardEl.classList.add("card-pop-reveal");
+        bh.cardEl.addEventListener(
+          "animationend",
+          () => bh.cardEl.classList.remove("card-pop-reveal"),
+          { once: true }
+        );
       }
     }
 
@@ -644,12 +683,12 @@ function triggerHeartsSequence() {
       if (mh.alpha <= 0) continue;
 
       miniBurstActive = true;
-      mh.x += mh.vx;
-      mh.y += mh.vy;
-      mh.vy += mh.gravity;
-      mh.vx *= 0.98;
-      mh.angle += mh.angleSpeed;
-      mh.alpha -= mh.decay;
+      mh.x += mh.vx * dt;
+      mh.y += mh.vy * dt;
+      mh.vy += mh.gravity * dt;
+      mh.vx *= Math.pow(0.98, dt);
+      mh.angle += mh.angleSpeed * dt;
+      mh.alpha -= mh.decay * dt;
 
       drawHeartShape(
         tCtx,
