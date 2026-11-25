@@ -257,14 +257,13 @@ main {
 /* Скрытое состояние кнопки, пока на её месте растёт сердечко */
 .card.card-hidden-for-heart {
   opacity: 0 !important;
-  transform: scale(0.25) !important;
   pointer-events: none !important;
   animation: none !important;
 }
 
 /* Плавное выпрыгивание кнопки в момент лопания сердечка */
 .card.card-pop-reveal {
-  animation: CARD-HEART-POP 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  animation: CARD-HEART-POP 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes CARD-HEART-POP {
